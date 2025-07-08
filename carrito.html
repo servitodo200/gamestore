@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrito</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="auth-container">
+    <h1>Tu carrito</h1>
+    <ul id="lista-carrito"></ul>
+    <button id="vaciar-carrito">Vaciar carrito</button>
+  </main>
+
+  <script>
+    const lista = document.getElementById("lista-carrito");
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    if (carrito.length === 0) {
+      lista.innerHTML = "<li>No hay juegos en tu carrito.</li>";
+    } else {
+      carrito.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.textContent = `${index + 1}. ${item.titulo} - ${item.tipo}`;
+        lista.appendChild(li);
+      });
+    }
+
+    document.getElementById("vaciar-carrito").addEventListener("click", () => {
+      localStorage.removeItem("carrito");
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

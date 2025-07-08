@@ -13,7 +13,7 @@
       <a href="#">Inicio</a>
       <a href="#">Catálogo</a>
       <a href="login.html">Login</a>
-      <a href="#">Carrito</a>
+      <a href="carrito.html">Carrito</a>
     </nav>
   </header>
 
@@ -185,5 +185,40 @@
   <footer>
     <p>&copy; 2025 GameStore. Todos los derechos reservados.</p>
   </footer> 
+  
+  <script type="module">
+  import { auth } from "./firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  let usuarioLogeado = null;
+
+  onAuthStateChanged(auth, (user) => {
+    usuarioLogeado = user;
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.tagName === "BUTTON" && (e.target.textContent === "Comprar" || e.target.textContent === "Alquilar")) {
+      if (!usuarioLogeado) {
+        e.preventDefault();
+        alert("Debes iniciar sesión para continuar.");
+        window.location.href = "auth.html";
+      } else {
+        // Lógica futura de agregar al carrito aquí
+        const juego = e.target.closest(".juego");
+        const titulo = juego.querySelector("h2").textContent;
+        const tipo = e.target.textContent; // Comprar o Alquilar
+
+        const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+        carrito.push({ titulo, tipo });
+        localStorage.setItem("carrito", JSON.stringify(carrito));
+
+        alert(`${titulo} añadido al carrito para ${tipo.toLowerCase()}`);
+      }
+    }
+  });
+</script>
+
+  
+  
 </body>
 </html>
