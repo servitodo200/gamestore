@@ -184,21 +184,6 @@
 
   <footer>
     <p>&copy; 2025 GameStore. Todos los derechos reservados.</p>
-  </footer>
-
-  <script type="module">
-    import { auth } from './firebase.js';
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-
-    // Al cargar la página, verifica si hay usuario autenticado
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        // Si NO hay usuario autenticado, redirige a login
-        window.location.href = 'login.html';
-      }
-      // Si hay usuario, deja que siga en esta página
-    });
-  </script>
-  
+  </footer> 
 </body>
 </html>
