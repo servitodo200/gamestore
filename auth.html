@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login GameStore</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="auth-container">
+    <h1>Iniciar Sesión</h1>
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="Correo" required />
+      <input type="password" id="login-password" placeholder="Contraseña" required />
+      <button type="submit">Iniciar sesión</button>
+    </form>
+
+    <h2>o regístrate</h2>
+    <form id="register-form">
+      <input type="text" id="reg-nombre" placeholder="Nombre" required />
+      <input type="text" id="reg-apellido" placeholder="Apellido" required />
+      <input type="tel" id="reg-telefono" placeholder="Teléfono" required />
+      <input type="email" id="reg-email" placeholder="Correo" required />
+      <input type="password" id="reg-password" placeholder="Contraseña" required />
+      <button type="submit">Registrarse</button>
+    </form>
+  </main>
+
+  <script type="module">
+    import {{ auth }} from "./firebase.js";
+    import {{ createUserWithEmailAndPassword, signInWithEmailAndPassword }} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const loginForm = document.getElementById("login-form");
+    const registerForm = document.getElementById("register-form");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        alert("Sesión iniciada con éxito");
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Error al iniciar sesión: " + error.message);
+      }
+    });
+
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("reg-email").value;
+      const password = document.getElementById("reg-password").value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Registro exitoso");
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Error al registrarse: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
