@@ -2,22 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Catálogo de Videojuegos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GameStore</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <h1>GameStore</h1>
+    <h1 class="logo">🎮 GameStore</h1>
     <nav>
-      <a href="#">Inicio</a>
-      <a href="#">Catálogo</a>
-      <a href="login.html">Login</a>
+      <a href="auth.html">Iniciar Sesión</a>
       <a href="carrito.html">Carrito</a>
     </nav>
   </header>
 
-  <main>
 <section class="catalogo">
   <div class="juego">
     <img src="images/juego1.jpg" alt="Juego 1">
@@ -180,45 +177,48 @@
     <button>Alquilar</button>
   </div>
 </section>
-  </main>
 
-  <footer>
-    <p>&copy; 2025 GameStore. Todos los derechos reservados.</p>
-  </footer> 
-  
+  <!-- 🔒 MODAL DE LOGIN SI NO ESTÁ AUTENTICADO -->
+  <div id="login-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Debes iniciar sesión para continuar</h2>
+      <a href="auth.html" class="modal-btn">Ir a iniciar sesión</a>
+    </div>
+  </div>
+
+  <!-- 🔗 Scripts -->
   <script type="module">
-  import { auth } from "./firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  let usuarioLogeado = null;
+    let usuarioLogeado = null;
 
-  onAuthStateChanged(auth, (user) => {
-    usuarioLogeado = user;
-  });
+    onAuthStateChanged(auth, (user) => {
+      usuarioLogeado = user;
+    });
 
-  document.addEventListener("click", (e) => {
-    if (e.target.tagName === "BUTTON" && (e.target.textContent === "Comprar" || e.target.textContent === "Alquilar")) {
-      if (!usuarioLogeado) {
-        e.preventDefault();
-        alert("Debes iniciar sesión para continuar.");
-        window.location.href = "auth.html";
-      } else {
-        // Lógica futura de agregar al carrito aquí
-        const juego = e.target.closest(".juego");
-        const titulo = juego.querySelector("h2").textContent;
-        const tipo = e.target.textContent; // Comprar o Alquilar
+    document.addEventListener("click", (e) => {
+      if (e.target.tagName === "BUTTON" && (e.target.textContent === "Comprar" || e.target.textContent === "Alquilar")) {
+        if (!usuarioLogeado) {
+          e.preventDefault();
+          document.getElementById("login-modal").classList.remove("hidden");
+        } else {
+          const juego = e.target.closest(".juego");
+          const titulo = juego.querySelector("h2").textContent;
+          const tipo = e.target.textContent;
 
-        const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-        carrito.push({ titulo, tipo });
-        localStorage.setItem("carrito", JSON.stringify(carrito));
+          const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+          carrito.push({ titulo, tipo });
+          localStorage.setItem("carrito", JSON.stringify(carrito));
 
-        alert(`${titulo} añadido al carrito para ${tipo.toLowerCase()}`);
+          // Feedback visual
+          e.target.textContent = "✔ Añadido";
+          setTimeout(() => {
+            e.target.textContent = tipo;
+          }, 1000);
+        }
       }
-    }
-  });
-</script>
-
-  
-  
+    });
+  </script>
 </body>
 </html>
