@@ -2,34 +2,53 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carrito</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrito - GameStore</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main class="auth-container">
-    <h1>Tu carrito</h1>
-    <ul id="lista-carrito"></ul>
-    <button id="vaciar-carrito">Vaciar carrito</button>
+  <main class="carrito-container">
+    <h1>Tu Carrito</h1>
+    <section id="carrito-lista">
+      <ul id="lista-carrito"></ul>
+      <p id="mensaje-vacio" style="display: none;">Tu carrito está vacío.</p>
+    </section>
+    <button id="continuar" style="display: none;">Ir al Checkout</button>
   </main>
 
-  <script>
-    const lista = document.getElementById("lista-carrito");
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    let usuarioLogeado = null;
+
+    onAuthStateChanged(auth, (user) => {
+      usuarioLogeado = user;
+    });
+
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const ul = document.getElementById("lista-carrito");
+    const mensaje = document.getElementById("mensaje-vacio");
+    const btnContinuar = document.getElementById("continuar");
 
     if (carrito.length === 0) {
-      lista.innerHTML = "<li>No hay juegos en tu carrito.</li>";
+      mensaje.style.display = "block";
     } else {
-      carrito.forEach((item, index) => {
+      carrito.forEach(item => {
         const li = document.createElement("li");
-        li.textContent = `${index + 1}. ${item.titulo} - ${item.tipo}`;
-        lista.appendChild(li);
+        li.textContent = `${item.titulo} (${item.tipo})`;
+        ul.appendChild(li);
       });
+      btnContinuar.style.display = "inline-block";
     }
 
-    document.getElementById("vaciar-carrito").addEventListener("click", () => {
-      localStorage.removeItem("carrito");
-      window.location.reload();
+    btnContinuar.addEventListener("click", () => {
+      if (!usuarioLogeado) {
+        alert("Debes iniciar sesión para continuar con la compra.");
+        window.location.href = "login.html";
+      } else {
+        window.location.href = "checkout.html";
+      }
     });
   </script>
 </body>
