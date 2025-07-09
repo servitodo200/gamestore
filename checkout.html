@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
-    emailjs.init("PHWoyPU-qSM2lBH7x"); // Reemplaza con tu public key
+    emailjs.init("PHWoyPU-qSM2lBH7x"); // Tu Public Key
   </script>
 </head>
 <body>
@@ -25,6 +25,7 @@
     <section class="lista-carrito">
       <h2>Juegos seleccionados</h2>
       <ul id="carrito"></ul>
+      <p id="total" class="total-compra"><strong>Total:</strong> $0</p>
     </section>
 
     <section class="metodos-pago">
@@ -51,13 +52,19 @@
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const ul = document.getElementById("carrito");
     const cotizacionSpan = document.getElementById("cotizacion");
+    let total = 0;
 
-    // Mostrar juegos
+    // Mostrar juegos con precios
     carrito.forEach(item => {
       const li = document.createElement("li");
-      li.textContent = `${item.titulo} (${item.tipo})`;
+      const precio = item.tipo === "Comprar" ? 25 : 10;
+      li.textContent = `${item.titulo} (${item.tipo}) - $${precio}`;
       ul.appendChild(li);
+      total += precio;
     });
+
+    // Mostrar total
+    document.getElementById("total").textContent = `Total: $${total}`;
 
     // Mostrar datos del usuario
     let nombre = "", apellido = "", telefono = "", correo = "";
@@ -93,7 +100,10 @@
 
     // Confirmar pedido y enviar correo
     document.getElementById("confirmar-pedido").addEventListener("click", () => {
-      const juegosTexto = carrito.map(item => `• ${item.titulo} (${item.tipo})`).join("\n");
+      const juegosTexto = carrito.map(item => {
+        const precio = item.tipo === "Comprar" ? 25 : 10;
+        return `• ${item.titulo} (${item.tipo}) - $${precio}`;
+      }).join("\n");
 
       const templateParams = {
         to_email: correo,
@@ -102,7 +112,8 @@
         juegos: juegosTexto,
         telefono: telefono,
         correo: correo,
-        admin_email: "servitodo200@gmail.com" // Copia al admin
+        total: `$${total}`,
+        admin_email: "servitodo200@gmail.com"
       };
 
       emailjs.send("service_v1r0jyq", "template_kocrnu9", templateParams)
