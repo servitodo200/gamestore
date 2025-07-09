@@ -38,6 +38,10 @@ form.addEventListener("submit", async (e) => {
     await updateProfile(userCredential.user, { displayName: nombre });
 
     alert("Cuenta creada exitosamente.");
+	await createUserWithEmailAndPassword(auth, email, password);
+await updateProfile(auth.currentUser, { displayName: nombre + " " + apellido });
+localStorage.setItem("telefono", telefono);
+
     window.location.href = "index.html";
   } catch (error) {
     alert("Error al registrarse: " + error.message);
