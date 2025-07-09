@@ -9,11 +9,15 @@
 <body>
   <main class="carrito-container">
     <h1>Tu Carrito</h1>
-    <section id="carrito-lista">
+    <section id="carrito-lista" class="lista-carrito">
       <ul id="lista-carrito"></ul>
       <p id="mensaje-vacio" style="display: none;">Tu carrito está vacío.</p>
     </section>
-    <button id="continuar" style="display: none;">Ir al Checkout</button>
+
+    <div style="text-align: center; margin-top: 20px;">
+      <button id="continuar" style="display: none;">Ir al Checkout</button>
+      <button onclick="window.location.href='index.html'">Seguir comprando</button>
+    </div>
   </main>
 
   <script type="module">
@@ -34,14 +38,28 @@
     if (carrito.length === 0) {
       mensaje.style.display = "block";
     } else {
-      carrito.forEach(item => {
+      carrito.forEach((item, index) => {
         const li = document.createElement("li");
-        li.textContent = `${item.titulo} (${item.tipo})`;
+        li.innerHTML = `
+          ${item.titulo} (${item.tipo})
+          <button class="eliminar" data-index="${index}">❌</button>
+        `;
         ul.appendChild(li);
       });
       btnContinuar.style.display = "inline-block";
     }
 
+    // Eliminar un ítem del carrito
+    ul.addEventListener("click", (e) => {
+      if (e.target.classList.contains("eliminar")) {
+        const index = e.target.dataset.index;
+        carrito.splice(index, 1);
+        localStorage.setItem("carrito", JSON.stringify(carrito));
+        location.reload();
+      }
+    });
+
+    // Ir al checkout
     btnContinuar.addEventListener("click", () => {
       if (!usuarioLogeado) {
         alert("Debes iniciar sesión para continuar con la compra.");

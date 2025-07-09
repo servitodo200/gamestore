@@ -44,9 +44,11 @@
     import { auth } from "./firebase.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // Mostrar carrito
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const ul = document.getElementById("carrito");
+    const cotizacionSpan = document.getElementById("cotizacion");
+
+    // Mostrar juegos en el carrito
     carrito.forEach(item => {
       const li = document.createElement("li");
       li.textContent = `${item.titulo} (${item.tipo})`;
@@ -60,17 +62,14 @@
         return;
       }
 
-      document.getElementById("correo").textContent = user.email;
-      document.getElementById("nombre").textContent = user.displayName || "Nombre no definido";
-
-      // Extraer nombre y apellido si está separado por espacio
       const partes = user.displayName ? user.displayName.split(" ") : [];
       document.getElementById("nombre").textContent = partes[0] || "";
-      document.getElementById("apellido").textContent = partes[1] || "";
-      document.getElementById("telefono").textContent = localStorage.getItem("telefono") || "No guardado";
+      document.getElementById("apellido").textContent = partes.slice(1).join(" ") || "";
+      document.getElementById("correo").textContent = user.email;
+      document.getElementById("telefono").textContent = localStorage.getItem("telefono") || "No registrado";
     });
 
-    // Número de cotización secuencial
+    // Generar número de cotización
     function generarCotizacion() {
       let ultima = localStorage.getItem("ultimaCotizacion") || "000000";
       let nueva = (parseInt(ultima) + 1).toString().padStart(6, "0");
@@ -79,8 +78,9 @@
     }
 
     const numeroCotizacion = generarCotizacion();
-    document.getElementById("cotizacion").textContent = numeroCotizacion;
+    cotizacionSpan.textContent = numeroCotizacion;
 
+    // Confirmar pedido
     document.getElementById("confirmar-pedido").addEventListener("click", () => {
       alert(`Pedido confirmado. Tu número de cotización es ${numeroCotizacion}`);
       localStorage.removeItem("carrito");

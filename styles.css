@@ -121,3 +121,60 @@ footer {
   color: orange;
   text-decoration: underline;
 }
+
+.checkout-container,
+.carrito-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #1f1f1f;
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 0 12px rgba(255, 140, 0, 0.3);
+}
+
+.checkout-container h1,
+.checkout-container h2,
+.carrito-container h1 {
+  color: #ffa500;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.lista-carrito ul,
+#carrito {
+  list-style: none;
+  padding: 0;
+}
+
+.lista-carrito li {
+  background-color: #2b2b2b;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+.metodos-pago ul,
+.cotizacion-final {
+  background-color: #2a2a2a;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+button {
+  background-color: #ff7b00;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 15px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #e06600;
+}
