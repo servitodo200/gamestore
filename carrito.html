@@ -1,56 +1,57 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Carrito - GameStore</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <h1>Carrito de Compras</h1>
-    <nav>
-      <a href="index.html">Inicio</a>
-      <a href="checkout.html">Finalizar Pedido</a>
-    </nav>
-  </header>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <main>
-    <section class="carrito-container">
-      <h2>Juegos en tu carrito</h2>
+  <main class="carrito-container">
+    <h1>Tu Carrito</h1>
+    <section id="carrito-lista" class="lista-carrito">
       <ul id="lista-carrito"></ul>
-      <p id="total"></p>
-      <button id="seguir-comprando">Seguir comprando</button>
+      <p id="mensaje-vacio" style="display: none;">Tu carrito está vacío.</p>
     </section>
+
+    <div style="text-align: center; margin-top: 20px;">
+      <button id="continuar" style="display: none;">Ir al Checkout</button>
+      <button onclick="window.location.href='index.html'">Seguir comprando</button>
+    </div>
   </main>
 
-  <footer>
-    <p>&copy; 2025 GameStore</p>
-  </footer>
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  <script>
-    const lista = document.getElementById("lista-carrito");
-    const totalElemento = document.getElementById("total");
-    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    let usuarioLogeado = null;
 
-    function mostrarCarrito() {
-      lista.innerHTML = "";
-      let total = 0;
+    onAuthStateChanged(auth, (user) => {
+      usuarioLogeado = user;
+    });
 
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const ul = document.getElementById("lista-carrito");
+    const mensaje = document.getElementById("mensaje-vacio");
+    const btnContinuar = document.getElementById("continuar");
+
+    if (carrito.length === 0) {
+      mensaje.style.display = "block";
+    } else {
       carrito.forEach((item, index) => {
         const li = document.createElement("li");
         li.innerHTML = `
-          ${item.titulo} (${item.tipo}) - $25
-          <button class="eliminar" data-index="${index}">Eliminar</button>
+          ${item.titulo} (${item.tipo})
+          <button class="eliminar" data-index="${index}">❌</button>
         `;
-        lista.appendChild(li);
-        total += 25;
+        ul.appendChild(li);
       });
-
-      totalElemento.textContent = `Total a pagar: $${total}`;
+      btnContinuar.style.display = "inline-block";
     }
 
+    // Eliminar un ítem del carrito
     lista.addEventListener("click", (e) => {
       if (e.target.classList.contains("eliminar")) {
         const index = e.target.dataset.index;
@@ -68,11 +69,15 @@
       }
     });
 
-    document.getElementById("seguir-comprando").addEventListener("click", () => {
-      window.location.href = "index.html";
+    // Ir al checkout
+    btnContinuar.addEventListener("click", () => {
+      if (!usuarioLogeado) {
+        alert("Debes iniciar sesión para continuar con la compra.");
+        window.location.href = "login.html";
+      } else {
+        window.location.href = "checkout.html";
+      }
     });
-
-    mostrarCarrito();
   </script>
 </body>
 </html>
