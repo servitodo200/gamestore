@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    emailjs.init("PHWoyPU-qSM2lBH7x"); // Tu public key
+    emailjs.init("PHWoyPU-qSM2lBH7x");
   </script>
 </head>
 <body>
@@ -41,7 +41,9 @@
     <section class="cotizacion-final">
       <h2>Cotización</h2>
       <p><strong>Número de cotización:</strong> <span id="cotizacion"></span></p>
+      <p><strong>Total a pagar:</strong> <span id="total"></span></p>
       <button id="confirmar-pedido">Confirmar pedido</button>
+      <button onclick="window.location.href='carrito.html'" style="margin-left: 10px; background-color: gray; color: white;">Cancelar</button>
     </section>
   </main>
 
@@ -52,6 +54,7 @@
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const ul = document.getElementById("carrito");
     const cotizacionSpan = document.getElementById("cotizacion");
+    const totalSpan = document.getElementById("total");
 
     let juegos_array = [];
     let total = 0;
@@ -67,11 +70,7 @@
       total += precio;
     });
 
-    const totalParrafo = document.createElement("p");
-    totalParrafo.innerHTML = `<strong>Total a pagar:</strong> $${total}`;
-    totalParrafo.style.fontSize = "1.2em";
-    totalParrafo.style.marginTop = "10px";
-    ul.parentElement.appendChild(totalParrafo);
+    totalSpan.textContent = `$${total}`;
 
     let nombre = "", apellido = "", telefono = "", correo = "";
 
