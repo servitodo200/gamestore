@@ -46,6 +46,12 @@ nav a:hover {
   cursor: pointer;
 }
 
+.cerrar-sesion:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 10px rgba(255, 153, 0, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
 
 .juego img {
   width: 100%;
