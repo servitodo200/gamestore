@@ -6,6 +6,7 @@
   <title>GameStore</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
   <header>
@@ -190,9 +191,7 @@
   <footer>
     <p>&copy; 2025 GameStore. Todos los derechos reservados.</p>
   </footer>
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
+
   <script type="module">
     import { auth } from './firebase.js';
     import {
@@ -212,7 +211,7 @@
         const nombre = user.displayName?.split(" ")[0] || "Usuario";
         spanUsuario.textContent = `Hola, ${nombre}`;
         cerrarBtn.style.display = "inline";
-        loginLink.style.display = "none"; // Oculta el botón login si ya está logeado
+        loginLink.style.display = "none";
         lucide.createIcons();
       } else {
         usuarioLogeado = null;
@@ -228,13 +227,19 @@
       });
     });
 
-    // Botón comprar o alquilar
+    // Lógica para comprar o alquilar
     document.addEventListener("click", (e) => {
       if (e.target.tagName === "BUTTON" && (e.target.textContent === "Comprar" || e.target.textContent === "Alquilar")) {
         if (!usuarioLogeado) {
           e.preventDefault();
-          alert("Debes iniciar sesión para continuar.");
-          window.location.href = "auth.html";
+          Swal.fire({
+            icon: "warning",
+            title: "Inicia sesión",
+            text: "Debes iniciar sesión para continuar.",
+            confirmButtonText: "Ir al login"
+          }).then(() => {
+            window.location.href = "auth.html";
+          });
         } else {
           const juego = e.target.closest(".juego");
           const titulo = juego.querySelector("h2").textContent;
@@ -244,7 +249,13 @@
           carrito.push({ titulo, tipo });
           localStorage.setItem("carrito", JSON.stringify(carrito));
 
-          alert(`${titulo} añadido al carrito para ${tipo.toLowerCase()}`);
+          Swal.fire({
+            icon: "success",
+            title: `${titulo}`,
+            text: `Añadido al carrito para ${tipo.toLowerCase()}`,
+            timer: 1500,
+            showConfirmButton: false
+          });
         }
       }
     });
