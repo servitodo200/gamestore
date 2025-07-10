@@ -1,3 +1,4 @@
+--- index.html ---
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Catálogo de Videojuegos</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
   <header>
@@ -16,9 +16,6 @@
       <a href="login.html">Login</a>
       <a href="carrito.html">Carrito</a>
       <span id="usuario-logueado" style="margin-left: 10px; color: orange;"></span>
-      <button id="cerrar-sesion" style="background: none; border: none; cursor: pointer; display: none;">
-        <i data-lucide="log-out"></i>
-      </button>
     </nav>
   </header>
 
@@ -192,31 +189,21 @@
   </footer>
 
   <script type="module">
-    import { auth, signOut } from "./firebase.js";
-    import { onAuthStateChanged, signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     let usuarioLogeado = null;
 
     onAuthStateChanged(auth, (user) => {
       usuarioLogeado = user;
       const spanUsuario = document.getElementById("usuario-logueado");
-      const cerrarSesionBtn = document.getElementById("cerrar-sesion");
 
       if (user && user.displayName) {
         const nombre = user.displayName.split(" ")[0];
         spanUsuario.textContent = `Hola, ${nombre}`;
-        cerrarSesionBtn.style.display = "inline";
-        lucide.createIcons();
       } else {
         spanUsuario.textContent = "";
-        cerrarSesionBtn.style.display = "none";
       }
-    });
-
-    document.getElementById("cerrar-sesion").addEventListener("click", () => {
-      firebaseSignOut(auth).then(() => {
-        window.location.reload();
-      });
     });
 
     document.addEventListener("click", (e) => {
