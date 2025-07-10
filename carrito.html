@@ -1,62 +1,75 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrito</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrito - GameStore</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Carrito de Juegos</h1>
-  <ul id="lista-carrito"></ul>
-  <p id="total"></p>
-  <button id="seguir-comprando">Seguir comprando</button>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script>
-    const lista = document.getElementById("lista-carrito");
-    const totalElemento = document.getElementById("total");
-    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  <main class="carrito-container">
+    <h1>Tu Carrito</h1>
+    <section id="carrito-lista" class="lista-carrito">
+      <ul id="lista-carrito"></ul>
+      <p id="mensaje-vacio" style="display: none;">Tu carrito está vacío.</p>
+    </section>
 
-    function mostrarCarrito() {
-      lista.innerHTML = "";
-      let total = 0;
+    <div style="text-align: center; margin-top: 20px;">
+      <button id="continuar" style="display: none;">Ir al Checkout</button>
+      <button onclick="window.location.href='index.html'">Seguir comprando</button>
+    </div>
+  </main>
 
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    let usuarioLogeado = null;
+
+    onAuthStateChanged(auth, (user) => {
+      usuarioLogeado = user;
+    });
+
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const ul = document.getElementById("lista-carrito");
+    const mensaje = document.getElementById("mensaje-vacio");
+    const btnContinuar = document.getElementById("continuar");
+
+    if (carrito.length === 0) {
+      mensaje.style.display = "block";
+    } else {
       carrito.forEach((item, index) => {
         const li = document.createElement("li");
         li.innerHTML = `
-          ${item.titulo} (${item.tipo}) - $25
-          <button class="eliminar" data-index="${index}">Eliminar</button>
+          ${item.titulo} (${item.tipo})
+          <button class="eliminar" data-index="${index}">❌</button>
         `;
-        lista.appendChild(li);
-        total += 25;
+        ul.appendChild(li);
       });
-
-      totalElemento.textContent = `Total: $${total}`;
+      btnContinuar.style.display = "inline-block";
     }
 
-    lista.addEventListener("click", (e) => {
+    // Eliminar un ítem del carrito
+    ul.addEventListener("click", (e) => {
       if (e.target.classList.contains("eliminar")) {
         const index = e.target.dataset.index;
         carrito.splice(index, 1);
         localStorage.setItem("carrito", JSON.stringify(carrito));
-        mostrarCarrito();
-
-        Swal.fire({
-          icon: "info",
-          title: "Juego eliminado",
-          text: "El juego fue eliminado del carrito.",
-          timer: 1500,
-          showConfirmButton: false
-        });
+        location.reload();
       }
     });
 
-    document.getElementById("seguir-comprando").addEventListener("click", () => {
-      window.location.href = "index.html";
+    // Ir al checkout
+    btnContinuar.addEventListener("click", () => {
+      if (!usuarioLogeado) {
+        alert("Debes iniciar sesión para continuar con la compra.");
+        window.location.href = "login.html";
+      } else {
+        window.location.href = "checkout.html";
+      }
     });
-
-    mostrarCarrito();
   </script>
 </body>
 </html>
