@@ -6,13 +6,12 @@
   <title>Checkout - GameStore</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    emailjs.init("PHWoyPU-qSM2lBH7x"); // Tu Public Key
+    emailjs.init("PHWoyPU-qSM2lBH7x"); // Tu public key
   </script>
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
   <main class="checkout-container">
     <h1>Resumen de tu pedido</h1>
 
@@ -27,7 +26,6 @@
     <section class="lista-carrito">
       <h2>Juegos seleccionados</h2>
       <ul id="carrito"></ul>
-      <p id="total" class="total-compra"><strong>Total:</strong> $0</p>
     </section>
 
     <section class="metodos-pago">
@@ -47,110 +45,96 @@
     </section>
   </main>
 
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const ul = document.getElementById("carrito");
+    const cotizacionSpan = document.getElementById("cotizacion");
 
-<script type="module">
-  import { auth } from "./firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    let juegos_array = [];
+    let total = 0;
 
-  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-  const ul = document.getElementById("carrito");
-  const cotizacionSpan = document.getElementById("cotizacion");
+    carrito.forEach(item => {
+      const precio = item.tipo === "Comprar" ? 25 : 10;
+      juegos_array.push({ titulo: item.titulo, tipo: item.tipo, precio });
 
-  let juegos_array = [];
-  let total = 0;
+      const li = document.createElement("li");
+      li.textContent = `${item.titulo} (${item.tipo}) - $${precio}`;
+      ul.appendChild(li);
 
-  // Mostrar juegos con precios y calcular total
-  carrito.forEach(item => {
-    const precio = item.tipo === "Comprar" ? 25 : 10;
-    juegos_array.push({ titulo: item.titulo, tipo: item.tipo, precio });
+      total += precio;
+    });
 
-    const li = document.createElement("li");
-    li.textContent = `${item.titulo} (${item.tipo}) - $${precio}`;
-    ul.appendChild(li);
+    const totalParrafo = document.createElement("p");
+    totalParrafo.innerHTML = `<strong>Total a pagar:</strong> $${total}`;
+    totalParrafo.style.fontSize = "1.2em";
+    totalParrafo.style.marginTop = "10px";
+    ul.parentElement.appendChild(totalParrafo);
 
-    total += precio;
-  });
+    let nombre = "", apellido = "", telefono = "", correo = "";
 
-  // Mostrar total en la página
-  const totalHTML = document.createElement("p");
-  totalHTML.innerHTML = `<strong>Total:</strong> $${total}`;
-  totalHTML.style.marginTop = "10px";
-  totalHTML.style.fontSize = "1.2em";
-  totalHTML.style.fontWeight = "bold";
-  ul.parentNode.appendChild(totalHTML);
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
 
-  // Datos del usuario
-  let nombre = "", apellido = "", telefono = "", correo = "";
+      const partes = user.displayName ? user.displayName.split(" ") : [];
+      nombre = partes[0] || "";
+      apellido = partes.slice(1).join(" ") || "";
+      telefono = localStorage.getItem("telefono") || "No registrado";
+      correo = user.email;
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-      return;
+      document.getElementById("nombre").textContent = nombre;
+      document.getElementById("apellido").textContent = apellido;
+      document.getElementById("telefono").textContent = telefono;
+      document.getElementById("correo").textContent = correo;
+    });
+
+    function generarCotizacion() {
+      let ultima = localStorage.getItem("ultimaCotizacion") || "000000";
+      let nueva = (parseInt(ultima) + 1).toString().padStart(6, "0");
+      localStorage.setItem("ultimaCotizacion", nueva);
+      return nueva;
     }
 
-    const partes = user.displayName ? user.displayName.split(" ") : [];
-    nombre = partes[0] || "";
-    apellido = partes.slice(1).join(" ") || "";
-    telefono = localStorage.getItem("telefono") || "No registrado";
-    correo = user.email;
+    const numeroCotizacion = generarCotizacion();
+    cotizacionSpan.textContent = numeroCotizacion;
 
-    document.getElementById("nombre").textContent = nombre;
-    document.getElementById("apellido").textContent = apellido;
-    document.getElementById("telefono").textContent = telefono;
-    document.getElementById("correo").textContent = correo;
-  });
+    document.getElementById("confirmar-pedido").addEventListener("click", () => {
+      const templateParams = {
+        to_email: correo,
+        from_name: `${nombre} ${apellido}`,
+        cotizacion: numeroCotizacion,
+        juegos_array,
+        telefono,
+        correo,
+        total: `$${total}`,
+        admin_email: "servitodo200@gmail.com"
+      };
 
-  // Cotización
-  function generarCotizacion() {
-    let ultima = localStorage.getItem("ultimaCotizacion") || "000000";
-    let nueva = (parseInt(ultima) + 1).toString().padStart(6, "0");
-    localStorage.setItem("ultimaCotizacion", nueva);
-    return nueva;
-  }
-
-  const numeroCotizacion = generarCotizacion();
-  cotizacionSpan.textContent = numeroCotizacion;
-
-  // Confirmar pedido
-  document.getElementById("confirmar-pedido").addEventListener("click", () => {
-    const templateParams = {
-      to_email: correo,
-      from_name: `${nombre} ${apellido}`,
-      cotizacion: numeroCotizacion,
-      juegos_array,
-      telefono,
-      correo,
-      total: `$${total}`,
-      admin_email: "servitodo200@gmail.com"
-    };
-
-    emailjs.send("service_v1r0jyq", "template_kocrnu9", templateParams)
-      .then(() => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Pedido confirmado',
-          html: `Tu cotización <strong>#${numeroCotizacion}</strong> fue enviada por correo.`,
-          confirmButtonText: 'Volver al inicio'
-        }).then(() => {
-          localStorage.removeItem("carrito");
-          window.location.href = "index.html";
+      emailjs.send("service_v1r0jyq", "template_kocrnu9", templateParams)
+        .then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Pedido confirmado',
+            html: `Tu cotización <strong>#${numeroCotizacion}</strong> fue enviada por correo.`,
+            confirmButtonText: 'Volver al inicio'
+          }).then(() => {
+            localStorage.removeItem("carrito");
+            window.location.href = "index.html";
+          });
+        }, (error) => {
+          console.error("Error al enviar correo:", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al enviar correo',
+            text: 'Ocurrió un error al enviar el correo. Inténtalo de nuevo.'
+          });
         });
-      }, (error) => {
-        console.error("Error al enviar correo:", error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al enviar correo',
-          text: 'Ocurrió un error al enviar el correo. Inténtalo de nuevo.'
-        });
-      });
-  });
-</script>
-
-
+    });
+  </script>
 </body>
 </html>
