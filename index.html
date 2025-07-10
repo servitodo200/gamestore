@@ -1,4 +1,3 @@
---- index.html ---
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,13 +9,14 @@
 <body>
   <header>
     <h1>GameStore</h1>
-    <nav>
-      <a href="#">Inicio</a>
-      <a href="#">Catálogo</a>
-      <a href="login.html">Login</a>
-      <a href="carrito.html">Carrito</a>
-      <span id="usuario-logueado" style="margin-left: 10px; color: orange;"></span>
-    </nav>
+<nav>
+  <a href="#">Inicio</a>
+  <a href="#">Catálogo</a>
+  <a href="login.html">Login</a>
+  <a href="carrito.html">Carrito</a>
+  <span id="usuario-logueado" style="margin-left: 10px; color: orange;"></span>
+</nav>
+
   </header>
 
   <main>
@@ -186,8 +186,12 @@
 
   <footer>
     <p>&copy; 2025 GameStore. Todos los derechos reservados.</p>
-  </footer>
+  </footer> 
 
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Firebase Auth + lógica -->
   <script type="module">
     import { auth } from "./firebase.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -196,32 +200,37 @@
 
     onAuthStateChanged(auth, (user) => {
       usuarioLogeado = user;
-      const spanUsuario = document.getElementById("usuario-logueado");
-
-      if (user && user.displayName) {
-        const nombre = user.displayName.split(" ")[0];
-        spanUsuario.textContent = `Hola, ${nombre}`;
-      } else {
-        spanUsuario.textContent = "";
-      }
     });
 
     document.addEventListener("click", (e) => {
       if (e.target.tagName === "BUTTON" && (e.target.textContent === "Comprar" || e.target.textContent === "Alquilar")) {
-        if (!usuarioLogeado) {
-          e.preventDefault();
-          alert("Debes iniciar sesión para continuar.");
-          window.location.href = "auth.html";
-        } else {
-          const juego = e.target.closest(".juego");
-          const titulo = juego.querySelector("h2").textContent;
-          const tipo = e.target.textContent;
+        e.preventDefault();
+        
+        const juego = e.target.closest(".juego");
+        const titulo = juego.querySelector("h2").textContent;
+        const tipo = e.target.textContent;
 
+        if (!usuarioLogeado) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Inicia sesión',
+            text: 'Debes iniciar sesión para continuar.',
+            confirmButtonText: 'Ir al login'
+          }).then(() => {
+            window.location.href = "auth.html";
+          });
+        } else {
           const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
           carrito.push({ titulo, tipo });
           localStorage.setItem("carrito", JSON.stringify(carrito));
 
-          alert(`${titulo} añadido al carrito para ${tipo.toLowerCase()}`);
+          Swal.fire({
+            icon: 'success',
+            title: '¡Agregado al carrito!',
+            text: `${titulo} fue añadido para ${tipo.toLowerCase()}.`,
+            timer: 2000,
+            showConfirmButton: false
+          });
         }
       }
     });
