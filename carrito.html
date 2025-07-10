@@ -3,31 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrito - GameStore</title>
+  <title>Carrito</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-  <header>
-    <h1>Carrito de Compras</h1>
-    <nav>
-      <a href="index.html">Inicio</a>
-      <a href="checkout.html">Finalizar Pedido</a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="carrito-container">
-      <h2>Juegos en tu carrito</h2>
-      <ul id="lista-carrito"></ul>
-      <p id="total"></p>
-      <button id="seguir-comprando">Seguir comprando</button>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 GameStore</p>
-  </footer>
+  <h1>Carrito de Juegos</h1>
+  <ul id="lista-carrito"></ul>
+  <p id="total"></p>
+  <button id="seguir-comprando">Seguir comprando</button>
 
   <script>
     const lista = document.getElementById("lista-carrito");
@@ -48,7 +32,7 @@
         total += 25;
       });
 
-      totalElemento.textContent = `Total a pagar: $${total}`;
+      totalElemento.textContent = `Total: $${total}`;
     }
 
     lista.addEventListener("click", (e) => {
