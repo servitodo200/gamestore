@@ -11,6 +11,8 @@
   </script>
 </head>
 <body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <main class="checkout-container">
     <h1>Resumen de tu pedido</h1>
 
@@ -45,87 +47,102 @@
     </section>
   </main>
 
-  <script type="module">
-    import { auth } from "./firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-    const ul = document.getElementById("carrito");
-    const cotizacionSpan = document.getElementById("cotizacion");
-    let total = 0;
+<script type="module">
+  import { auth } from "./firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // Mostrar juegos con precios
-    carrito.forEach(item => {
-      const li = document.createElement("li");
-      const precio = item.tipo === "Comprar" ? 25 : 10;
-      li.textContent = `${item.titulo} (${item.tipo}) - $${precio}`;
-      ul.appendChild(li);
-      total += precio;
-    });
+  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  const ul = document.getElementById("carrito");
+  const cotizacionSpan = document.getElementById("cotizacion");
 
-    // Mostrar total
-    document.getElementById("total").textContent = `Total: $${total}`;
+  // Mostrar juegos
+  carrito.forEach(item => {
+    const li = document.createElement("li");
+    const precio = item.tipo === "Comprar" ? 25 : 10;
+    li.textContent = `${item.titulo} (${item.tipo}) - $${precio}`;
+    ul.appendChild(li);
+  });
 
-    // Mostrar datos del usuario
-    let nombre = "", apellido = "", telefono = "", correo = "";
+  // Mostrar datos del usuario
+  let nombre = "", apellido = "", telefono = "", correo = "";
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      const partes = user.displayName ? user.displayName.split(" ") : [];
-      nombre = partes[0] || "";
-      apellido = partes.slice(1).join(" ") || "";
-      telefono = localStorage.getItem("telefono") || "No registrado";
-      correo = user.email;
-
-      document.getElementById("nombre").textContent = nombre;
-      document.getElementById("apellido").textContent = apellido;
-      document.getElementById("telefono").textContent = telefono;
-      document.getElementById("correo").textContent = correo;
-    });
-
-    // Generar cotización
-    function generarCotizacion() {
-      let ultima = localStorage.getItem("ultimaCotizacion") || "000000";
-      let nueva = (parseInt(ultima) + 1).toString().padStart(6, "0");
-      localStorage.setItem("ultimaCotizacion", nueva);
-      return nueva;
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
     }
 
-    const numeroCotizacion = generarCotizacion();
-    cotizacionSpan.textContent = numeroCotizacion;
+    const partes = user.displayName ? user.displayName.split(" ") : [];
+    nombre = partes[0] || "";
+    apellido = partes.slice(1).join(" ") || "";
+    telefono = localStorage.getItem("telefono") || "No registrado";
+    correo = user.email;
 
-    // Confirmar pedido y enviar correo
-    document.getElementById("confirmar-pedido").addEventListener("click", () => {
-      const juegosTexto = carrito.map(item => {
-        const precio = item.tipo === "Comprar" ? 25 : 10;
-        return `• ${item.titulo} (${item.tipo}) - $${precio}`;
-      }).join("\n");
+    document.getElementById("nombre").textContent = nombre;
+    document.getElementById("apellido").textContent = apellido;
+    document.getElementById("telefono").textContent = telefono;
+    document.getElementById("correo").textContent = correo;
+  });
 
-      const templateParams = {
-        to_email: correo,
-        from_name: `${nombre} ${apellido}`,
-        cotizacion: numeroCotizacion,
-        juegos: juegosTexto,
-        telefono: telefono,
-        correo: correo,
-        total: `$${total}`,
-        admin_email: "servitodo200@gmail.com"
+  // Generar cotización
+  function generarCotizacion() {
+    let ultima = localStorage.getItem("ultimaCotizacion") || "000000";
+    let nueva = (parseInt(ultima) + 1).toString().padStart(6, "0");
+    localStorage.setItem("ultimaCotizacion", nueva);
+    return nueva;
+  }
+
+  const numeroCotizacion = generarCotizacion();
+  cotizacionSpan.textContent = numeroCotizacion;
+
+  // Confirmar pedido y enviar correo
+  document.getElementById("confirmar-pedido").addEventListener("click", () => {
+    const juegos_array = carrito.map(item => {
+      const precio = item.tipo === "Comprar" ? 25 : 10;
+      return {
+        titulo: item.titulo,
+        tipo: item.tipo,
+        precio: precio
       };
+    });
 
-      emailjs.send("service_v1r0jyq", "template_kocrnu9", templateParams)
-        .then(() => {
-          alert(`Pedido confirmado. Tu cotización #${numeroCotizacion} fue enviada por correo.`);
+    const total = juegos_array.reduce((sum, juego) => sum + juego.precio, 0);
+
+    const templateParams = {
+      to_email: correo,
+      from_name: `${nombre} ${apellido}`,
+      cotizacion: numeroCotizacion,
+      juegos_array,
+      telefono: telefono,
+      correo: correo,
+      total: `$${total}`,
+      admin_email: "servitodo200@gmail.com"
+    };
+
+    emailjs.send("service_v1r0jyq", "template_kocrnu9", templateParams)
+      .then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Pedido confirmado',
+          html: `Tu cotización <strong>#${numeroCotizacion}</strong> fue enviada por correo.`,
+          confirmButtonText: 'Volver al inicio'
+        }).then(() => {
           localStorage.removeItem("carrito");
           window.location.href = "index.html";
-        }, (error) => {
-          console.error("Error al enviar correo:", error);
-          alert("Ocurrió un error al enviar el correo. Inténtalo de nuevo.");
         });
-    });
-  </script>
+      }, (error) => {
+        console.error("Error al enviar correo:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al enviar correo',
+          text: 'Ocurrió un error al enviar el correo. Inténtalo de nuevo.'
+        });
+      });
+  });
+</script>
+
 </body>
 </html>

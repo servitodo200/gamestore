@@ -7,18 +7,15 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<header>
-  <h1>GameStore</h1>
-  <nav>
-    <span id="saludo"></span>
-    <a href="index.html">Inicio</a>
-    <a href="#">Catálogo</a>
-    <a href="login.html" id="login-link">Login</a>
-    <a href="carrito.html">Carrito</a>
-    <a href="#" id="logout-link" style="display: none;">Cerrar sesión</a>
-  </nav>
-</header>
-
+  <header>
+    <h1>GameStore</h1>
+    <nav>
+      <a href="#">Inicio</a>
+      <a href="#">Catálogo</a>
+      <a href="login.html">Login</a>
+      <a href="carrito.html">Carrito</a>
+    </nav>
+  </header>
 
   <main>
 <section class="catalogo">
@@ -188,66 +185,53 @@
   <footer>
     <p>&copy; 2025 GameStore. Todos los derechos reservados.</p>
   </footer> 
-  
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Firebase Auth + lógica -->
   <script type="module">
-  import { auth } from "./firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  let usuarioLogeado = null;
+    let usuarioLogeado = null;
 
-  onAuthStateChanged(auth, (user) => {
-    usuarioLogeado = user;
-  });
+    onAuthStateChanged(auth, (user) => {
+      usuarioLogeado = user;
+    });
 
-  document.addEventListener("click", (e) => {
-    if (e.target.tagName === "BUTTON" && (e.target.textContent === "Comprar" || e.target.textContent === "Alquilar")) {
-      if (!usuarioLogeado) {
+    document.addEventListener("click", (e) => {
+      if (e.target.tagName === "BUTTON" && (e.target.textContent === "Comprar" || e.target.textContent === "Alquilar")) {
         e.preventDefault();
-        alert("Debes iniciar sesión para continuar.");
-        window.location.href = "auth.html";
-      } else {
-        // Lógica futura de agregar al carrito aquí
+        
         const juego = e.target.closest(".juego");
         const titulo = juego.querySelector("h2").textContent;
-        const tipo = e.target.textContent; // Comprar o Alquilar
+        const tipo = e.target.textContent;
 
-        const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-        carrito.push({ titulo, tipo });
-        localStorage.setItem("carrito", JSON.stringify(carrito));
+        if (!usuarioLogeado) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Inicia sesión',
+            text: 'Debes iniciar sesión para continuar.',
+            confirmButtonText: 'Ir al login'
+          }).then(() => {
+            window.location.href = "auth.html";
+          });
+        } else {
+          const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+          carrito.push({ titulo, tipo });
+          localStorage.setItem("carrito", JSON.stringify(carrito));
 
-        alert(`${titulo} añadido al carrito para ${tipo.toLowerCase()}`);
+          Swal.fire({
+            icon: 'success',
+            title: '¡Agregado al carrito!',
+            text: `${titulo} fue añadido para ${tipo.toLowerCase()}.`,
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
       }
-    }
-  });
-</script>
-<script type="module">
-  import { auth } from "./firebase.js";
-  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-  const saludo = document.getElementById("saludo");
-  const loginLink = document.getElementById("login-link");
-  const logoutLink = document.getElementById("logout-link");
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      saludo.textContent = `👋 Hola, ${user.displayName || "usuario"}`;
-      loginLink.style.display = "none";
-      logoutLink.style.display = "inline-block";
-    } else {
-      saludo.textContent = "";
-      loginLink.style.display = "inline-block";
-      logoutLink.style.display = "none";
-    }
-  });
-
-  logoutLink.addEventListener("click", async (e) => {
-    e.preventDefault();
-    await signOut(auth);
-    window.location.reload();
-  });
-</script>
-
-  
-  
+    });
+  </script>
 </body>
 </html>
