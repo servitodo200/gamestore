@@ -14,7 +14,7 @@
   <a href="#">Catálogo</a>
   <a href="login.html">Login</a>
   <a href="carrito.html">Carrito</a>
-  <span id="usuario-logueado" style="margin-left: 10px; color: orange;"></span>
+  <span id="usuario-logueado" style="margin-left: 10px; color: orange;">salir</span>
 </nav>
 
   </header>
@@ -198,9 +198,18 @@
 
     let usuarioLogeado = null;
 
-    onAuthStateChanged(auth, (user) => {
-      usuarioLogeado = user;
-    });
+onAuthStateChanged(auth, (user) => {
+  usuarioLogeado = user;
+  const spanUsuario = document.getElementById("usuario-logueado");
+
+  if (user && user.displayName) {
+    const nombre = user.displayName.split(" ")[0]; // Solo el primer nombre
+    spanUsuario.textContent = `Hola, ${nombre}`;
+  } else {
+    spanUsuario.textContent = "";
+  }
+});
+
 
     document.addEventListener("click", (e) => {
       if (e.target.tagName === "BUTTON" && (e.target.textContent === "Comprar" || e.target.textContent === "Alquilar")) {
