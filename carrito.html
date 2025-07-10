@@ -7,19 +7,13 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
   <main class="carrito-container">
     <h1>Tu Carrito</h1>
-    <section id="carrito-lista" class="lista-carrito">
+    <section id="carrito-lista">
       <ul id="lista-carrito"></ul>
       <p id="mensaje-vacio" style="display: none;">Tu carrito está vacío.</p>
     </section>
-
-    <div style="text-align: center; margin-top: 20px;">
-      <button id="continuar" style="display: none;">Ir al Checkout</button>
-      <button onclick="window.location.href='index.html'">Seguir comprando</button>
-    </div>
+    <button id="continuar" style="display: none;">Ir al Checkout</button>
   </main>
 
   <script type="module">
@@ -41,27 +35,16 @@
       mensaje.style.display = "block";
     } else {
       carrito.forEach((item, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          ${item.titulo} (${item.tipo})
-          <button class="eliminar" data-index="${index}">❌</button>
-        `;
-        ul.appendChild(li);
-      });
+  const li = document.createElement("li");
+  li.innerHTML = `
+    ${item.titulo} (${item.tipo})
+    <button class="eliminar" data-index="${index}">❌</button>
+  `;
+  ul.appendChild(li);
+});
       btnContinuar.style.display = "inline-block";
     }
 
-    // Eliminar un ítem del carrito
-    ul.addEventListener("click", (e) => {
-      if (e.target.classList.contains("eliminar")) {
-        const index = e.target.dataset.index;
-        carrito.splice(index, 1);
-        localStorage.setItem("carrito", JSON.stringify(carrito));
-        location.reload();
-      }
-    });
-
-    // Ir al checkout
     btnContinuar.addEventListener("click", () => {
       if (!usuarioLogeado) {
         alert("Debes iniciar sesión para continuar con la compra.");
@@ -70,6 +53,16 @@
         window.location.href = "checkout.html";
       }
     });
+	
+	ul.addEventListener("click", (e) => {
+  if (e.target.classList.contains("eliminar")) {
+    const index = e.target.dataset.index;
+    carrito.splice(index, 1);
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+    location.reload();
+  }
+});
+
   </script>
 </body>
 </html>
