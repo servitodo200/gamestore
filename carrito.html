@@ -49,19 +49,21 @@
 
       if (carrito.length === 0) {
         lista.innerHTML = "<li>Tu carrito está vacío.</li>";
+        totalElemento.textContent = "";
       } else {
         carrito.forEach((item, index) => {
+          const precio = item.precio || 0;
           const li = document.createElement("li");
           li.innerHTML = `
-            ${item.titulo} (${item.tipo}) - $25
+            ${item.titulo} (${item.tipo}) - $${precio}
             <button class="eliminar" data-index="${index}">Eliminar</button>
           `;
           lista.appendChild(li);
-          total += 25;
+          total += precio;
         });
-      }
 
-      totalElemento.textContent = `Total a pagar: $${total}`;
+        totalElemento.textContent = `Total a pagar: $${total}`;
+      }
     }
 
     lista.addEventListener("click", (e) => {
