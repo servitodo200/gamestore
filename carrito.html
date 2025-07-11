@@ -2,155 +2,125 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Checkout - GameStore</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrito - GameStore</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    emailjs.init("PHWoyPU-qSM2lBH7x"); // Reemplaza con tu public key
-  </script>
+  <style>
+    .carrito-container h2 {
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <main class="checkout-container">
-    <h1>Resumen de tu pedido</h1>
+  <header>
+    <h1>Carrito de Compras</h1>
+  </header>
 
-    <section class="datos-usuario">
-      <h2>Datos del cliente</h2>
-      <p><strong>Nombre:</strong> <span id="nombre"></span></p>
-      <p><strong>Apellido:</strong> <span id="apellido"></span></p>
-      <p><strong>Teléfono:</strong> <span id="telefono"></span></p>
-      <p><strong>Correo:</strong> <span id="correo"></span></p>
-    </section>
-
-    <section class="lista-carrito">
-      <h2>Juegos seleccionados</h2>
-      <ul id="carrito"></ul>
-    </section>
-
-    <section class="metodos-pago">
-      <h2>Métodos de pago</h2>
-      <ul>
-        <li><strong>Pago Móvil:</strong> 22123456 4121234567 (Banesco)</li>
-        <li><strong>Depósito en efectivo:</strong></li>
-        <li>Bancamiga: #123456789</li>
-        <li>Mercantil: #987654321</li>
-      </ul>
-    </section>
-
-    <section class="cotizacion-final">
-      <h2>Cotización</h2>
-      <p><strong>Número de cotización:</strong> <span id="cotizacion"></span></p>
-      <p><strong>Total a pagar:</strong> <span id="total-pagar"></span></p>
-      <button id="confirmar-pedido">Confirmar pedido</button>
-      <button id="cancelar-pedido" style="margin-left: 10px; background-color: #ccc; color: #000;">Cancelar pedido</button>
+  <main>
+    <section class="carrito-container">
+      <h2>Juegos en tu carrito</h2>
+      <ul id="lista-carrito"></ul>
+      <p id="total"></p>
+      <div class="botones-carrito">
+        <button id="seguir-comprando">Seguir comprando</button>
+        <button id="finalizar-compra">Finalizar pedido</button>
+        <button id="cancelar-carrito">Cancelar carrito</button>
+      </div>
     </section>
   </main>
 
-  <script type="module">
-    import { auth } from "./firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  <footer>
+    <p>&copy; 2025 GameStore. Todos los derechos reservados.</p>
+  </footer>
 
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-    const ul = document.getElementById("carrito");
-    const cotizacionSpan = document.getElementById("cotizacion");
-    const totalSpan = document.getElementById("total-pagar");
+  <script>
+    const lista = document.getElementById("lista-carrito");
+    const totalElemento = document.getElementById("total");
+    const botonSeguir = document.getElementById("seguir-comprando");
+    const botonFinalizar = document.getElementById("finalizar-compra");
+    const botonCancelar = document.getElementById("cancelar-carrito");
 
-    // Mostrar juegos y calcular total
-    let total = 0;
-    carrito.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.titulo} (${item.tipo}) - $25`;
-      ul.appendChild(li);
-      total += 25;
-    });
-    totalSpan.textContent = `$${total}`;
+    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-    // Mostrar datos del usuario
-    let nombre = "", apellido = "", telefono = "", correo = "";
+    function mostrarCarrito() {
+      lista.innerHTML = "";
+      let total = 0;
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
+      if (carrito.length === 0) {
+        lista.innerHTML = "<li>Tu carrito está vacío.</li>";
+      } else {
+        carrito.forEach((item, index) => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            ${item.titulo} (${item.tipo}) - $25
+            <button class="eliminar" data-index="${index}">Eliminar</button>
+          `;
+          lista.appendChild(li);
+          total += 25;
+        });
       }
 
-      const partes = user.displayName ? user.displayName.split(" ") : [];
-      nombre = partes[0] || "";
-      apellido = partes.slice(1).join(" ") || "";
-      telefono = localStorage.getItem("telefono") || "No registrado";
-      correo = user.email;
-
-      document.getElementById("nombre").textContent = nombre;
-      document.getElementById("apellido").textContent = apellido;
-      document.getElementById("telefono").textContent = telefono;
-      document.getElementById("correo").textContent = correo;
-    });
-
-    // Generar cotización
-    function generarCotizacion() {
-      let ultima = localStorage.getItem("ultimaCotizacion") || "000000";
-      let nueva = (parseInt(ultima) + 1).toString().padStart(6, "0");
-      localStorage.setItem("ultimaCotizacion", nueva);
-      return nueva;
+      totalElemento.textContent = `Total a pagar: $${total}`;
     }
 
-    const numeroCotizacion = generarCotizacion();
-    cotizacionSpan.textContent = numeroCotizacion;
+    lista.addEventListener("click", (e) => {
+      if (e.target.classList.contains("eliminar")) {
+        const index = e.target.dataset.index;
+        const eliminado = carrito[index];
+        carrito.splice(index, 1);
+        localStorage.setItem("carrito", JSON.stringify(carrito));
+        mostrarCarrito();
 
-    // Confirmar pedido y enviar correo
-    document.getElementById("confirmar-pedido").addEventListener("click", () => {
-      const juegosTexto = carrito.map(item => `• ${item.titulo} (${item.tipo})`).join("\n");
-
-      const templateParams = {
-        to_email: correo,
-        from_name: `${nombre} ${apellido}`,
-        cotizacion: numeroCotizacion,
-        juegos: juegosTexto,
-        telefono: telefono,
-        correo: correo,
-        total: `$${total}`,
-        admin_email: "servitodo200@gmail.com"
-      };
-
-      emailjs.send("service_v1r0jyq", "template_kocrnu9", templateParams)
-        .then(() => {
-          Swal.fire({
-            icon: "success",
-            title: "Pedido confirmado",
-            html: `Tu cotización <strong>#${numeroCotizacion}</strong> fue enviada por correo.`,
-            confirmButtonText: "Aceptar"
-          }).then(() => {
-            localStorage.removeItem("carrito");
-            window.location.href = "index.html";
-          });
-        }, (error) => {
-          console.error("Error al enviar correo:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error al enviar correo",
-            text: "Ocurrió un error al enviar el correo. Inténtalo de nuevo.",
-          });
+        Swal.fire({
+          icon: "info",
+          title: "Juego eliminado",
+          text: `${eliminado.titulo} fue eliminado del carrito.`,
+          timer: 1500,
+          showConfirmButton: false
         });
+      }
     });
 
-    // Cancelar pedido
-    document.getElementById("cancelar-pedido").addEventListener("click", () => {
+    botonSeguir.addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
+    botonFinalizar.addEventListener("click", () => {
+      if (carrito.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Carrito vacío",
+          text: "Agrega al menos un juego antes de finalizar tu pedido.",
+        });
+      } else {
+        window.location.href = "checkout.html";
+      }
+    });
+
+    botonCancelar.addEventListener("click", () => {
       Swal.fire({
-        title: "¿Cancelar pedido?",
-        text: "Tu carrito se mantendrá guardado.",
+        title: "¿Seguro que quieres cancelar el carrito?",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
         confirmButtonText: "Sí, cancelar",
-        cancelButtonText: "Volver"
+        cancelButtonText: "No",
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = "index.html";
+          carrito = [];
+          localStorage.removeItem("carrito");
+          mostrarCarrito();
+          Swal.fire({
+            title: "Carrito cancelado",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false
+          });
         }
       });
     });
+
+    mostrarCarrito();
   </script>
 </body>
 </html>
