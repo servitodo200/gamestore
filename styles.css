@@ -1,199 +1,77 @@
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #121212;
+/* Mejor estilo para cada item del carrito */
+#lista-carrito li {
+  background-color: #2b2b2b; /* mantengo similar a .lista-carrito li */
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(255, 140, 0, 0.3);
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
   color: #f5f5f5;
 }
-header {
-  background-color: #000;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-header h1 {
-  color: orange;
-}
-nav a {
-  color: white;
-  margin-left: 1rem;
-  text-decoration: none;
-}
-nav a:hover {
-  color: orange;
-}
-.catalogo {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
-}
-.juego {
-  background-color: #1e1e1e;
-  border-radius: 10px;
-  padding: 1rem;
-  text-align: center;
-  box-shadow: 0 0 8px rgba(255, 165, 0, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
+
+#lista-carrito li:hover {
+  background-color: #3a3a3a;
 }
 
-.juego:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 10px rgba(255, 153, 0, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
+/* Contenido texto (título + tipo + precio) */
+#lista-carrito li span {
+  flex-grow: 1;
 }
 
-.cerrar-sesion:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 10px rgba(255, 153, 0, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.juego img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-.juego .precio {
-  color: orange;
-  font-weight: bold;
-  margin: 0.5rem 0;
-}
-button {
-  background-color: orange;
-  color: black;
-  border: none;
-  padding: 0.5rem 1rem;
-  margin: 0.3rem;
-  border-radius: 5px;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #ffaa00;
-}
-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #000;
-  color: #888;
-}
-@media (hover: none) and (pointer: coarse) {
-  .juego:active {
-    transform: scale(0.98);
-    box-shadow: 0 0 10px rgba(255, 165, 0, 0.4);
-    transition: transform 0.1s, box-shadow 0.1s;
-  }
-}
-.auth-container {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: #1e1e1e;
-  border-radius: 10px;
-  box-shadow: 0 0 10px orange;
-}
-.auth-container {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: #1e1e1e;
-  border-radius: 10px;
-  box-shadow: 0 0 10px orange;
-  color: white;
-}
-.auth-container h1 {
-  text-align: center;
-  color: orange;
-}
-.auth-container form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.auth-container input, .auth-container button {
-  padding: 0.5rem;
-  border: none;
-  border-radius: 5px;
-}
-.auth-container button {
-  background-color: orange;
-  color: black;
-  font-weight: bold;
-  cursor: pointer;
-}
-.auth-container a {
-  color: orange;
-  text-decoration: underline;
-}
-
-.checkout-container,
-.carrito-container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #1f1f1f;
-  border-radius: 12px;
-  color: #fff;
-  font-family: 'Segoe UI', sans-serif;
-  box-shadow: 0 0 12px rgba(255, 140, 0, 0.3);
-}
-
-.checkout-container h1,
-.checkout-container h2,
-.carrito-container h1 {
-  color: #ffa500;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.lista-carrito ul,
-#carrito {
-  list-style: none;
-  padding: 0;
-}
-
-.lista-carrito li {
-  background-color: #2b2b2b;
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-}
-
-.metodos-pago ul,
-.cotizacion-final {
-  background-color: #2a2a2a;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
-}
-
-button {
+/* Botón eliminar más estilizado */
+#lista-carrito li button.eliminar {
   background-color: #ff7b00;
   color: white;
   border: none;
-  padding: 10px 20px;
-  margin-top: 15px;
-  font-size: 16px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
+  margin-left: 20px;
 }
 
-button:hover {
+#lista-carrito li button.eliminar:hover {
   background-color: #e06600;
 }
 
-.total-compra {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #ff9900;
-  margin-top: 10px;
+/* Total alineado a la derecha con un estilo destacado */
+#total {
+  margin-top: 25px;
+  font-size: 1.4rem;
+  font-weight: 700;
   text-align: right;
+  color: #ff9900;
   border-top: 2px solid #ff9900;
-  padding-top: 10px;
+  padding-top: 12px;
+}
+
+/* Botones bajo el total, centrados y con espacio */
+.botones-carrito {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.botones-carrito button {
+  background-color: #ff7b00;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 3px 8px rgba(255, 140, 0, 0.6);
+}
+
+.botones-carrito button:hover {
+  background-color: #e06600;
 }
